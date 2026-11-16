@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <title>SimpleVG icon</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3182CE"/><stop offset="1" stop-color="#2A4E8F"/></linearGradient>
+    <clipPath id="clip"><rect x="8" y="8" width="184" height="184" rx="44"/></clipPath>
+  </defs>
+  <rect x="8" y="8" width="184" height="184" rx="44" fill="url(#bg)"/>
+  <g clip-path="url(#clip)">
+    <path d="M0 150 C35 132 70 168 105 150 S165 132 200 150 V200 H0 Z" fill="rgba(255,255,255,.12)"/>
+    <path d="M0 164 C40 148 75 182 115 164 S170 148 200 166 V200 H0 Z" fill="rgba(255,255,255,.18)"/>
+    <path d="M0 180 C45 166 80 196 120 180 S175 166 200 182 V200 H0 Z" fill="rgba(255,255,255,.26)"/>
+  </g>
+  <g transform="translate(10 4) scale(.9)">
+    <path d="M138 62 C132 30 62 32 64 74 C66 108 140 90 140 128 C140 166 68 168 60 134" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round"/>
+    <g stroke="#FBD38D" stroke-width="3"><line x1="138" y1="62" x2="132" y2="30"/><line x1="60" y1="134" x2="68" y2="168"/></g>
+    <g fill="#2A4E8F" stroke="#FBD38D" stroke-width="3"><circle cx="132" cy="30" r="6"/><circle cx="68" cy="168" r="6"/><rect x="132" y="56" width="12" height="12"/><rect x="54" y="128" width="12" height="12"/></g>
+  </g>
+</svg>

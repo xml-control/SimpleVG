@@ -1,0 +1,33 @@
+## .NET build output
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+*.pdb
+
+## Visual Studio / user files
+.vs/
+*.user
+*.suo
+*.userprefs
+*.sln.docstates
+
+## Editor / tooling
+.vscode/
+.idea/
+.claude/
+
+## Node / test tooling
+node_modules/
+playwright-report/
+test-results/
+
+## Scratch
+scratch/
+
+## OS generated files
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+$RECYCLE.BIN/
+.DS_Store

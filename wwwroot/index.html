@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SimpleVG - SCADA SVG Symbol Editor</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/controls.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body class="light-theme">
+  <div class="app-container">
+    <!-- Top App Navigation / Header -->
+    <header class="app-header">
+    <div class="brand">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="brand-icon">
+        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+      <span class="app-title">SimpleVG</span>
+      <span class="app-tag">SCADA Symbol Studio</span>
+    </div>
+
+    <div class="top-menu">
+      <div class="menu-group">
+        <button id="btn-new" class="menu-btn" title="New Canvas">
+          <svg class="icon"><use href="#icon-new"></use></svg> New
+        </button>
+        <button id="btn-open" class="menu-btn" title="Open SVG File (Replaces Canvas)">
+          <svg class="icon"><use href="#icon-folder"></use></svg> Open SVG
+        </button>
+        <button id="btn-import" class="menu-btn" title="Import External SVG into Current Canvas">
+          <svg class="icon"><use href="#icon-import"></use></svg> Import SVG
+        </button>
+        <input type="file" id="file-input-svg" accept=".svg" style="display:none;">
+        <input type="file" id="file-input-import-svg" accept=".svg" style="display:none;">
+        <button id="btn-save-svg" class="menu-btn primary" title="Save / Export SVG">
+          <svg class="icon"><use href="#icon-download"></use></svg> Save SVG
+        </button>
+        <button id="btn-export-png" class="menu-btn" title="Export as PNG">
+          <svg class="icon"><use href="#icon-image"></use></svg> Export PNG
+        </button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="menu-group">
+        <button id="btn-undo" class="menu-btn icon-only" title="Undo (Ctrl+Z)" disabled>
+          <svg class="icon"><use href="#icon-undo"></use></svg>
+        </button>
+        <button id="btn-redo" class="menu-btn icon-only" title="Redo (Ctrl+Y)" disabled>
+          <svg class="icon"><use href="#icon-redo"></use></svg>
+        </button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="menu-group">
+        <button id="btn-copy" class="menu-btn" title="Copy Selection (Ctrl+C)">
+          <svg class="icon"><use href="#icon-copy"></use></svg> Copy
+        </button>
+        <button id="btn-paste" class="menu-btn" title="Paste (Ctrl+V)">
+          <svg class="icon"><use href="#icon-paste"></use></svg> Paste
+        </button>
+        <button id="btn-group" class="menu-btn" title="Group Selection (Ctrl+G)">
+          <svg class="icon"><use href="#icon-group"></use></svg> Group
+        </button>
+        <button id="btn-ungroup" class="menu-btn" title="Ungroup Selection (Ctrl+Shift+G)">
+          <svg class="icon"><use href="#icon-ungroup"></use></svg> Ungroup
+        </button>
+
+        <!-- Format Menu Dropdown -->
+        <div class="menu-dropdown-container">
+          <button id="btn-format-menu" class="menu-btn" title="Format, Arrange & Align Elements">
+            <svg class="icon"><use href="#icon-layer"></use></svg> Format <span class="dropdown-arrow">▼</span>
+          </button>
+          <div class="dropdown-menu hidden" id="format-dropdown-menu">
+            <div class="dropdown-header">Z-ORDERING</div>
+            <button class="dropdown-item" id="btn-layer-to-front" title="Bring to Front">
+              <svg class="icon"><use href="#icon-front"></use></svg> Bring to Front
+            </button>
+            <button class="dropdown-item" id="btn-layer-forward" title="Bring Forward (Up)">
+              <svg class="icon"><use href="#icon-forward"></use></svg> Bring Forward (Up)
+            </button>
+            <button class="dropdown-item" id="btn-layer-backward" title="Send Backward (Down)">
+              <svg class="icon"><use href="#icon-backward"></use></svg> Send Backward (Down)
+            </button>
+            <button class="dropdown-item" id="btn-layer-to-back" title="Send to Back">
+              <svg class="icon"><use href="#icon-back"></use></svg> Send to Back
+            </button>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-header">OBJECT ALIGNMENT</div>
+            <button class="dropdown-item" id="btn-align-left">⇤ Align Left</button>
+            <button class="dropdown-item" id="btn-align-center">⇥ Align Center (Horiz)</button>
+            <button class="dropdown-item" id="btn-align-right">⇥ Align Right</button>
+            <button class="dropdown-item" id="btn-align-top">⤒ Align Top</button>
+            <button class="dropdown-item" id="btn-align-middle">⇯ Align Middle (Vert)</button>
+            <button class="dropdown-item" id="btn-align-bottom">⤓ Align Bottom</button>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-header">PATH OPERATIONS</div>
+            <button class="dropdown-item" id="btn-join-paths" title="Combine 2 or more open paths into a single closed path (Ctrl+J)">
+              🔗 Join / Combine Paths (Ctrl+J)
+            </button>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-header">FLIP & MIRROR</div>
+            <button class="dropdown-item" id="btn-flip-horiz" title="Flip Horizontal (Ctrl+Shift+H)">
+              ↔ Flip Horizontal
+            </button>
+            <button class="dropdown-item" id="btn-flip-vert" title="Flip Vertical (Ctrl+Shift+V)">
+              ↕ Flip Vertical
+            </button>
+            <button class="dropdown-item" id="btn-mirror-modal" title="Mirror / Symmetry Duplicate...">
+              🪞 Mirror / Symmetry Duplicate...
+            </button>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-header">RADIAL PATTERNS</div>
+            <button class="dropdown-item" id="btn-radial-array" title="Duplicate & Arrange Items in a Circle (Ctrl+Shift+D)">
+              <svg class="icon"><use href="#icon-flower"></use></svg> Radial Array (Petal Pattern)...
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="view-controls">
+        <button id="btn-toggle-grid" class="toggle-btn active" title="Toggle Grid Overlay">
+          <svg class="icon"><use href="#icon-grid"></use></svg> Grid
+        </button>
+        <button id="btn-toggle-snap" class="toggle-btn active" title="Toggle Grid Snapping">
+          <svg class="icon"><use href="#icon-magnet"></use></svg> Snap
+        </button>
+        <button id="btn-toggle-ruler" class="toggle-btn active" title="Toggle Canvas Rulers">
+          <svg class="icon"><use href="#icon-ruler"></use></svg> Ruler
+        </button>
+      </div>
+
+      <button id="theme-toggle" class="theme-toggle-btn" title="Switch Theme (Light / Dark)">
+        <span class="theme-icon light-icon">☀️ Light</span>
+        <span class="theme-icon dark-icon">🌙 Dark</span>
+      </button>
+
+      <button id="btn-help" class="menu-btn help-btn-header" title="Open Interactive User Guide (F1)">
+        <svg class="icon"><use href="#icon-help"></use></svg> Help
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Studio Workspace -->
+  <div class="studio-layout">
+    <!-- Left Collapsible Symbol Explorer -->
+    <aside class="left-toolbar" id="left-toolbar">
+      <!-- Permafixed Top Navigation Tools -->
+      <div class="permafixed-tools">
+        <button class="tool-btn active" data-tool="select" title="Select & Transform (V)">
+          <svg class="icon"><use href="#icon-cursor"></use></svg>
+          <span class="tool-name">Select</span>
+        </button>
+        <button class="tool-btn" data-tool="pan" title="Pan Canvas (Space)">
+          <svg class="icon"><use href="#icon-hand"></use></svg>
+          <span class="tool-name">Pan</span>
+        </button>
+        <label class="isa-drop-label" style="display:flex; align-items:center; justify-content:center; gap:4px; font-size:10px; font-weight:600; padding:4px 6px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:4px; margin-top:4px; cursor:pointer;" title="Drop symbols in ISA-101 neutral gray">
+          <input type="checkbox" id="chk-isa-gray-on-drop"> ISA-101 Gray
+        </label>
+      </div>
+
+      <!-- Section 1: Basic Shapes -->
+      <div class="tool-accordion-section collapsed">
+        <div class="tool-section-title accordion-header">
+          <span>BASIC SHAPES</span>
+          <span class="accordion-arrow">▼</span>
+        </div>
+        <div class="accordion-body">
+          <button class="tool-btn" data-tool="rect" title="Rectangle (R)">
+            <svg class="icon"><use href="#icon-rect"></use></svg>
+            <span class="tool-name">Rectangle</span>
+          </button>
+          <button class="tool-btn" data-tool="circle" title="Circle / Ellipse (C)">
+            <svg class="icon"><use href="#icon-circle"></use></svg>
+            <span class="tool-name">Circle</span>
+          </button>
+          <button class="tool-btn" data-tool="line" title="Line / Connection (L)">
+            <svg class="icon"><use href="#icon-line"></use></svg>
+            <span class="tool-name">Line</span>
+          </button>
+          <button class="tool-btn" data-tool="polyline" title="Polyline / Path (P)">
+            <svg class="icon"><use href="#icon-polyline"></use></svg>
+            <span class="tool-name">Polyline</span>
+          </button>
+          <button class="tool-btn" data-tool="polygon" title="Polygon / Triangle (P)">
+            <svg class="icon"><use href="#icon-polygon"></use></svg>
+            <span class="tool-name">Polygon</span>
+          </button>
+          <button class="tool-btn" data-tool="star" title="Star Shape (S)">
+            <svg class="icon"><use href="#icon-star"></use></svg>
+            <span class="tool-name">Star</span>
+          </button>
+          <button class="tool-btn" data-tool="arrow" title="Arrow Line (W)">
+            <svg class="icon"><use href="#icon-arrow"></use></svg>
+            <span class="tool-name">Arrow</span>
+          </button>
+          <button class="tool-btn" data-tool="arc" title="Arc / Curve (A) - Shift = 3-Point Arc Mode | Alt = Invert Sweep Side">
+            <svg class="icon"><use href="#icon-arc"></use></svg>
+            <span class="tool-name">Arc</span>
+          </button>
+          <button class="tool-btn" data-tool="bezier" title="Bézier Pen Tool (B)">
+            <svg class="icon"><use href="#icon-bezier"></use></svg>
+            <span class="tool-name">Bézier Pen</span>
+          </button>
+          <button class="tool-btn" data-tool="path" title="Freehand Path">
+            <svg class="icon"><use href="#icon-pen"></use></svg>
+            <span class="tool-name">Freehand</span>
+          </button>
+          <button class="tool-btn" data-tool="text" title="Text Label (T)">
+            <svg class="icon"><use href="#icon-text"></use></svg>
+            <span class="tool-name">Text</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 2: Facilities -->
+      <div class="tool-accordion-section collapsed">
+        <div class="tool-section-title accordion-header">
+          <span>FACILITIES</span>
+          <span class="accordion-arrow">▼</span>
+        </div>
+        <div class="accordion-body">
+          <button class="tool-btn SCADA-preset" id="preset-compass" title="Compass Rose Bearing Indicator">
+            <svg class="icon"><use href="#icon-compass"></use></svg>
+            <span class="tool-name">Compass Rose</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-house" title="2-Storey House Building">
+            <svg class="icon"><use href="#icon-house"></use></svg>
+            <span class="tool-name">House</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-bungalow" title="Single-Storey Bungalow Structure">
+            <svg class="icon"><use href="#icon-bungalow"></use></svg>
+            <span class="tool-name">Bungalow</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-garage" title="Garage & Sectional Door">
+            <svg class="icon"><use href="#icon-garage"></use></svg>
+            <span class="tool-name">Garage</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-workshop" title="Industrial Workshop Hall">
+            <svg class="icon"><use href="#icon-workshop"></use></svg>
+            <span class="tool-name">Workshop</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-greenhouse" title="Gabled Glass Greenhouse">
+            <svg class="icon"><use href="#icon-greenhouse"></use></svg>
+            <span class="tool-name">Greenhouse</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-office" title="Commercial Office Building">
+            <svg class="icon"><use href="#icon-office"></use></svg>
+            <span class="tool-name">Office</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-tower-block" title="Multi-Storey High Rise Tower">
+            <svg class="icon"><use href="#icon-tower-block"></use></svg>
+            <span class="tool-name">Tower Block</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-factory" title="Industrial Factory Complex & Smokestack">
+            <svg class="icon"><use href="#icon-factory"></use></svg>
+            <span class="tool-name">Factory</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-new-shop" title="Modern Retail Shop Front">
+            <svg class="icon"><use href="#icon-new-shop"></use></svg>
+            <span class="tool-name">New Shop</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-vintage-shop" title="Double-Fronted Vintage Shop">
+            <svg class="icon"><use href="#icon-vintage-shop"></use></svg>
+            <span class="tool-name">Vintage Shop</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-diner" title="Retro American Style Diner">
+            <svg class="icon"><use href="#icon-diner"></use></svg>
+            <span class="tool-name">American Diner</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 3: HVAC & Ductwork -->
+      <div class="tool-accordion-section collapsed">
+        <div class="tool-section-title accordion-header">
+          <span>HVAC & DUCTWORK</span>
+          <span class="accordion-arrow">▼</span>
+        </div>
+        <div class="accordion-body">
+          <button class="tool-btn SCADA-preset" id="preset-duct" title="Straight Rectangular Duct">
+            <svg class="icon"><use href="#icon-duct"></use></svg>
+            <span class="tool-name">Straight Duct</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-duct-elbow" title="90° Duct Elbow Bend">
+            <svg class="icon"><use href="#icon-duct-elbow"></use></svg>
+            <span class="tool-name">Duct Elbow</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-duct-tee" title="3-Way Rectangular Duct Tee Junction">
+            <svg class="icon"><use href="#icon-duct-tee"></use></svg>
+            <span class="tool-name">Duct Tee</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-duct-reducer" title="Duct Reducer Transition">
+            <svg class="icon"><use href="#icon-duct-reducer"></use></svg>
+            <span class="tool-name">Duct Reducer</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-damper" title="Airflow Louver Damper">
+            <svg class="icon"><use href="#icon-damper"></use></svg>
+            <span class="tool-name">Air Damper</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-ahu" title="Air Handling Unit Box">
+            <svg class="icon"><use href="#icon-ahu"></use></svg>
+            <span class="tool-name">AHU Unit</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-filter" title="Pleated Air Filter Cell">
+            <svg class="icon"><use href="#icon-filter"></use></svg>
+            <span class="tool-name">Air Filter</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-heater-coil" title="Heating Coil Assembly">
+            <svg class="icon"><use href="#icon-heater-coil"></use></svg>
+            <span class="tool-name">Heater Coil</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-cooler-coil" title="Cooling Coil & Drip Pan">
+            <svg class="icon"><use href="#icon-cooler-coil"></use></svg>
+            <span class="tool-name">Cooler Coil</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-bag-filter" title="Pocket / Bag Filter Bank">
+            <svg class="icon"><use href="#icon-bag-filter"></use></svg>
+            <span class="tool-name">Bag Filter</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 4: Knobs & Switches -->
+      <div class="tool-accordion-section collapsed">
+        <div class="tool-section-title accordion-header">
+          <span>KNOBS & SWITCHES</span>
+          <span class="accordion-arrow">▼</span>
+        </div>
+        <div class="accordion-body">
+          <button class="tool-btn SCADA-preset" id="preset-knob" title="Rotary Knob Dial">
+            <svg class="icon"><use href="#icon-knob"></use></svg>
+            <span class="tool-name">Rotary Knob</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-pushbutton" title="Panel Push Button">
+            <svg class="icon"><use href="#icon-knob"></use></svg>
+            <span class="tool-name">Push Button</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-toggle" title="2-Pos Toggle Switch">
+            <svg class="icon"><use href="#icon-switch"></use></svg>
+            <span class="tool-name">Toggle Switch</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-selector" title="3-Pos Selector Switch">
+            <svg class="icon"><use href="#icon-switch"></use></svg>
+            <span class="tool-name">Selector Switch</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-estop" title="Emergency Stop Button">
+            <svg class="icon"><use href="#icon-estop"></use></svg>
+            <span class="tool-name">E-Stop Button</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-keyswitch" title="Industrial Lock Key Switch">
+            <svg class="icon"><use href="#icon-switch"></use></svg>
+            <span class="tool-name">Key Switch</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 5: Lamps & Indicators -->
+      <div class="tool-accordion-section collapsed">
+        <div class="tool-section-title accordion-header">
+          <span>LAMPS & INDICATORS</span>
+          <span class="accordion-arrow">▼</span>
+        </div>
+        <div class="accordion-body">
+          <button class="tool-btn SCADA-preset" id="preset-lamp" title="Green Pilot Lamp (Running/Normal)">
+            <svg class="icon"><use href="#icon-lamp"></use></svg>
+            <span class="tool-name">Green Pilot Light</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-lamp-red" title="Red Alarm Pilot Lamp (Fault/Stop)">
+            <svg class="icon"><use href="#icon-lamp-red"></use></svg>
+            <span class="tool-name">Red Alarm Light</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-lamp-amber" title="Amber Warning Pilot Lamp (Alert/Caution)">
+            <svg class="icon"><use href="#icon-lamp-red"></use></svg>
+            <span class="tool-name">Amber Warning</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-lamp-blue" title="Blue Pilot Lamp (Ready/Auto)">
+            <svg class="icon"><use href="#icon-lamp-red"></use></svg>
+            <span class="tool-name">Blue Pilot Light</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-beacon-strobe" title="Rotating Strobe Alarm Beacon">
+            <svg class="icon"><use href="#icon-beacon"></use></svg>
+            <span class="tool-name">Alarm Beacon</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-stack-light" title="3-Tier Signal Tower / Stack Light">
+            <svg class="icon"><use href="#icon-stack-light"></use></svg>
+            <span class="tool-name">3-Tier Stack Light</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-led-indicator" title="Flush Mount LED Panel Indicator">
+            <svg class="icon"><use href="#icon-led-flat"></use></svg>
+            <span class="tool-name">Flush LED Panel</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-annunciator-tile" title="Backlit Alarm Annunciator Window Tile">
+            <svg class="icon"><use href="#icon-led-flat"></use></svg>
+            <span class="tool-name">Annunciator Tile</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-dome-light" title="Raised Dome Lens Pilot Light">
+            <svg class="icon"><use href="#icon-beacon"></use></svg>
+            <span class="tool-name">Dome Pilot Light</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 6: Landscape -->
+      <div class="tool-accordion-section collapsed">
+        <div class="tool-section-title accordion-header">
+          <span>LANDSCAPE</span>
+          <span class="accordion-arrow">▼</span>
+        </div>
+        <div class="accordion-body">
+          <button class="tool-btn SCADA-preset" id="preset-tree" title="Deciduous Tree">
+            <svg class="icon"><use href="#icon-tree"></use></svg>
+            <span class="tool-name">Tree</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-pine-tree" title="Evergreen Conifer / Pine Tree">
+            <svg class="icon"><use href="#icon-pine-tree"></use></svg>
+            <span class="tool-name">Pine Tree</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-shrub" title="Shrub / Bush Cluster">
+            <svg class="icon"><use href="#icon-shrub"></use></svg>
+            <span class="tool-name">Shrub</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-flower-bed" title="Blooming Flower Bed">
+            <svg class="icon"><use href="#icon-flower-bed"></use></svg>
+            <span class="tool-name">Flower Bed</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-fencing" title="Wooden Picket Fence Panel">
+            <svg class="icon"><use href="#icon-fencing"></use></svg>
+            <span class="tool-name">Fence</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-trellis" title="Lattice Trellis & Climbing Vines">
+            <svg class="icon"><use href="#icon-trellis"></use></svg>
+            <span class="tool-name">Trellis</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-brick-wall" title="Brick Wall Section">
+            <svg class="icon"><use href="#icon-brick-wall"></use></svg>
+            <span class="tool-name">Brick Wall</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-pond" title="Garden Pond & Lily Pads">
+            <svg class="icon"><use href="#icon-pond"></use></svg>
+            <span class="tool-name">Pond</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-block-paving" title="Block Paving Paver Patio">
+            <svg class="icon"><use href="#icon-block-paving"></use></svg>
+            <span class="tool-name">Block Paving</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-hedge" title="Manicured Garden Hedge">
+            <svg class="icon"><use href="#icon-hedge"></use></svg>
+            <span class="tool-name">Hedge</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 7: Meters & Gauges -->
+      <div class="tool-accordion-section collapsed">
+        <div class="tool-section-title accordion-header">
+          <span>METERS & GAUGES</span>
+          <span class="accordion-arrow">▼</span>
+        </div>
+        <div class="accordion-body">
+          <button class="tool-btn SCADA-preset" id="preset-gauge" title="Analog Pressure Gauge">
+            <svg class="icon"><use href="#icon-gauge"></use></svg>
+            <span class="tool-name">Pressure Gauge</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-thermometer" title="Vertical Temp/Level Meter">
+            <svg class="icon"><use href="#icon-meter"></use></svg>
+            <span class="tool-name">Level/Temp Bar</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-digital-meter" title="Digital LCD Panel Meter">
+            <svg class="icon"><use href="#icon-meter"></use></svg>
+            <span class="tool-name">Digital Meter</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-flowmeter" title="Inline Flowmeter Rotor">
+            <svg class="icon"><use href="#icon-flowmeter"></use></svg>
+            <span class="tool-name">Flowmeter</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-wattmeter" title="Watt / Power Dial Meter">
+            <svg class="icon"><use href="#icon-gauge"></use></svg>
+            <span class="tool-name">Watt Meter</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 8: Motors & Pumps -->
+      <div class="tool-accordion-section collapsed">
+        <div class="tool-section-title accordion-header">
+          <span>MOTORS & PUMPS</span>
+          <span class="accordion-arrow">▼</span>
+        </div>
+        <div class="accordion-body">
+          <button class="tool-btn SCADA-preset" id="preset-pump" title="Centrifugal Pump">
+            <svg class="icon"><use href="#icon-pump"></use></svg>
+            <span class="tool-name">Pump</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-motor" title="AC Electric Motor">
+            <svg class="icon"><use href="#icon-motor"></use></svg>
+            <span class="tool-name">AC Motor</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-agitator" title="Tank Agitator / Mixer">
+            <svg class="icon"><use href="#icon-agitator"></use></svg>
+            <span class="tool-name">Agitator</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-blower" title="Fan / Blower">
+            <svg class="icon"><use href="#icon-blower"></use></svg>
+            <span class="tool-name">Blower Fan</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 9: Pipes & Connectors -->
+      <div class="tool-accordion-section collapsed">
+        <div class="tool-section-title accordion-header">
+          <span>PIPES & CONNECTORS</span>
+          <span class="accordion-arrow">▼</span>
+        </div>
+        <div class="accordion-body">
+          <button class="tool-btn SCADA-preset" id="preset-pipe" title="Quick Metal Pipe Segment">
+            <svg class="icon"><use href="#icon-pipe"></use></svg>
+            <span class="tool-name">3D Pipe</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-elbow" title="90° Pipe Elbow Joint">
+            <svg class="icon"><use href="#icon-elbow"></use></svg>
+            <span class="tool-name">Pipe Elbow</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-tee" title="Tee Pipe Junction">
+            <svg class="icon"><use href="#icon-tee"></use></svg>
+            <span class="tool-name">Pipe Tee</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-flange" title="Pipe Flange / Joint">
+            <svg class="icon"><use href="#icon-flange"></use></svg>
+            <span class="tool-name">Flange</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 10: Sensors -->
+      <div class="tool-accordion-section collapsed">
+        <div class="tool-section-title accordion-header">
+          <span>SENSORS</span>
+          <span class="accordion-arrow">▼</span>
+        </div>
+        <div class="accordion-body">
+          <button class="tool-btn SCADA-preset" id="preset-duct-temp" title="Duct Insertion Temperature Sensor">
+            <svg class="icon"><use href="#icon-sensor-duct"></use></svg>
+            <span class="tool-name">Duct Temp</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-duct-humidity" title="Duct Humidity Sensor & Filter Tip">
+            <svg class="icon"><use href="#icon-sensor-duct"></use></svg>
+            <span class="tool-name">Duct Humidity</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-duct-pressure" title="Duct Differential Pressure Transducer">
+            <svg class="icon"><use href="#icon-sensor-duct"></use></svg>
+            <span class="tool-name">Duct Pressure</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-room-temp" title="Room Wall Temperature Stat & Vents">
+            <svg class="icon"><use href="#icon-sensor-room"></use></svg>
+            <span class="tool-name">Room Temp</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-room-humidity" title="Room Wall Humidity Sensor & Vents">
+            <svg class="icon"><use href="#icon-sensor-room"></use></svg>
+            <span class="tool-name">Room Humidity</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-outside-temp" title="Outdoor Solar Shield Temperature Sensor">
+            <svg class="icon"><use href="#icon-sensor-outside"></use></svg>
+            <span class="tool-name">Outside Temp</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-outside-humidity" title="Outdoor Weatherproof Humidity Probe">
+            <svg class="icon"><use href="#icon-sensor-outside"></use></svg>
+            <span class="tool-name">Outside Humidity</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-outside-uv" title="Outdoor UV Radiation Dome Sensor">
+            <svg class="icon"><use href="#icon-sensor-uv"></use></svg>
+            <span class="tool-name">Outside UV</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 11: Valves & Vessels -->
+      <div class="tool-accordion-section collapsed">
+        <div class="tool-section-title accordion-header">
+          <span>VALVES & VESSELS</span>
+          <span class="accordion-arrow">▼</span>
+        </div>
+        <div class="accordion-body">
+          <button class="tool-btn SCADA-preset" id="preset-valve" title="Valve Body Primitive">
+            <svg class="icon"><use href="#icon-valve"></use></svg>
+            <span class="tool-name">Valve Body</span>
+          </button>
+          <button class="tool-btn SCADA-preset" id="preset-tank" title="Vessel / Tank Base">
+            <svg class="icon"><use href="#icon-tank"></use></svg>
+            <span class="tool-name">Tank Vessel</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Canvas Container Workspace -->
+    <main class="canvas-viewport" id="canvas-viewport">
+      <div class="canvas-workspace-wrapper" id="canvas-workspace-wrapper">
+        <div class="canvas-scroll-pad">
+          <div class="canvas-artboard-container" id="canvas-artboard-container">
+          <div class="ruler-corner"></div>
+          <div class="ruler-top" id="ruler-top">
+            <svg id="ruler-top-svg" width="500" height="24" viewBox="0 0 500 24"></svg>
+          </div>
+          <div class="ruler-left" id="ruler-left">
+            <svg id="ruler-left-svg" width="24" height="500" viewBox="0 0 24 500"></svg>
+          </div>
+          <div class="canvas-svg-box">
+            <svg id="svg-canvas" xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500">
+              <defs id="svg-defs">
+                <!-- Grid pattern (Default 10px) -->
+                <pattern id="grid-pattern" width="10" height="10" patternUnits="userSpaceOnUse">
+                  <path d="M 10 0 L 0 0 0 10" fill="none" stroke="var(--grid-line-color)" stroke-width="0.75" />
+                  <circle cx="10" cy="10" r="0.75" fill="var(--grid-dot-color)" />
+                </pattern>
+                <!-- Arrow & Endpoint Markers -->
+                <marker id="marker-arrow-end" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" fill="context-stroke" /></marker>
+                <marker id="marker-arrow-start" viewBox="0 0 10 10" refX="2" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 10 1 L 0 5 L 10 9 z" fill="context-stroke" /></marker>
+                <marker id="marker-circle" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto"><circle cx="5" cy="5" r="4" fill="context-stroke" /></marker>
+                <marker id="marker-diamond" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto"><polygon points="5 0 10 5 5 10 0 5" fill="context-stroke" /></marker>
+                <!-- Built-in SCADA Gradients -->
+                <linearGradient id="scada-metal-pipe" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#4A5568"/>
+                  <stop offset="35%" stop-color="#E2E8F0"/>
+                  <stop offset="70%" stop-color="#718096"/>
+                  <stop offset="100%" stop-color="#2D3748"/>
+                </linearGradient>
+                <radialGradient id="scada-led-ok" cx="35%" cy="35%" r="65%">
+                  <stop offset="0%" stop-color="#81E6D9"/>
+                  <stop offset="45%" stop-color="#38A169"/>
+                  <stop offset="100%" stop-color="#1C4532"/>
+                </radialGradient>
+                <radialGradient id="scada-led-alarm" cx="35%" cy="35%" r="65%">
+                  <stop offset="0%" stop-color="#FEB2B2"/>
+                  <stop offset="45%" stop-color="#E53E3E"/>
+                  <stop offset="100%" stop-color="#742A2A"/>
+                </radialGradient>
+              </defs>
+
+              <!-- Grid Background Rect -->
+              <rect id="canvas-grid-bg" width="100%" height="100%" fill="url(#grid-pattern)" pointer-events="none" />
+              
+              <!-- Canvas Center Reference Lines (Horizontal & Vertical) -->
+              <g id="canvas-center-lines" pointer-events="none">
+                <line id="center-line-v" x1="250" y1="0" x2="250" y2="500" stroke="#CBD5E0" stroke-width="1.5" stroke-dasharray="5,4" />
+                <line id="center-line-h" x1="0" y1="250" x2="500" y2="250" stroke="#CBD5E0" stroke-width="1.5" stroke-dasharray="5,4" />
+              </g>
+              
+              <!-- Tracing Reference Image Layer -->
+              <g id="tracing-layer" pointer-events="none"></g>
+
+              <!-- Drawing Layer Group -->
+              <g id="svg-stage"></g>
+
+              <!-- Interactive Selection Handle Layer -->
+              <g id="selection-layer"></g>
+            </svg>
+          </div>
+        </div>
+      </div>
+      </div>
+
+      <!-- Canvas Info Overlay -->
+      <div class="canvas-statusBar">
+        <span id="canvas-size-info">Canvas: 500 x 500 px</span>
+        <span class="spacer">|</span>
+        <span id="mouse-coords">X: 0, Y: 0</span>
+        <span class="spacer">|</span>
+        <span id="selection-count" style="font-weight: 600; color: #A0AEC0;">Selected: None (0)</span>
+        <span class="spacer">|</span>
+        <div class="zoom-controls">
+          <div class="fast-zoom-buttons">
+            <button class="mini-btn btn-fast-zoom" data-zoom="0.5" title="Zoom to 50%">50%</button>
+            <button class="mini-btn btn-fast-zoom" data-zoom="1.0" title="Zoom to 100%">100%</button>
+            <button class="mini-btn btn-fast-zoom" data-zoom="1.5" title="Zoom to 150%">150%</button>
+            <button class="mini-btn btn-fast-zoom" data-zoom="2.0" title="Zoom to 200%">200%</button>
+          </div>
+          <span class="spacer">|</span>
+          <button id="btn-zoom-out" class="mini-btn" title="Zoom Out">-</button>
+          <span id="zoom-level">100%</span>
+          <button id="btn-zoom-in" class="mini-btn" title="Zoom In">+</button>
+          <button id="btn-zoom-reset" class="mini-btn" title="Reset Zoom">Reset</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- PNG Export Options Modal -->
+    <div class="modal-overlay" id="png-modal" style="display: none;">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Export PNG Image Options</h3>
+          <button class="modal-close" id="png-modal-close">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="field-group">
+            <label>Background Fill</label>
+            <div class="radio-row">
+              <label class="radio-label">
+                <input type="radio" name="png-bg-type" value="transparent" checked> Transparent
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="png-bg-type" value="white"> White (#FFFFFF)
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="png-bg-type" value="dark"> Dark (#1A202C)
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="png-bg-type" value="custom"> Custom
+              </label>
+            </div>
+          </div>
+          <div class="field-group" id="png-custom-color-group" style="display: none;">
+            <label>Custom Background Color</label>
+            <input type="color" id="png-bg-custom-color" value="#ffffff">
+          </div>
+          <div class="field-group">
+            <label>Export Canvas Bounds</label>
+            <div class="radio-row">
+              <label class="radio-label">
+                <input type="radio" name="png-bounds-type" value="canvas" checked> <span>Full Canvas (<span class="canvas-dim-label">500 × 500</span> px)</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="png-bounds-type" value="extents"> Tight Extents of Shapes (Auto-Crop)
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="png-bounds-type" value="selected"> Selected Entities Only
+              </label>
+            </div>
+          </div>
+          <div class="field-group" id="png-padding-group" style="display: none;">
+            <label>Padding Margin (px)</label>
+            <input type="number" id="png-padding-input" class="input-prop" value="10" min="0" max="100">
+          </div>
+          <div class="field-group">
+            <label>Resolution Multiplier</label>
+            <select id="png-scale-select" class="input-prop">
+              <option value="1">1x Standard</option>
+              <option value="2" selected>2x High-DPI (Retina Quality)</option>
+              <option value="4">4x Ultra-HD (Print Quality)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="menu-btn" id="png-modal-cancel">Cancel</button>
+          <button class="menu-btn primary" id="png-modal-download">Export PNG</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SVG Save / Export Options Modal -->
+    <div class="modal-overlay" id="svg-modal" style="display: none;">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Save / Export SVG Options</h3>
+          <button class="modal-close" id="svg-modal-close">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="field-group">
+            <label>Export Canvas Bounds</label>
+            <div class="radio-row">
+              <label class="radio-label">
+                <input type="radio" name="svg-bounds-type" value="canvas" checked> <span>Full Canvas (<span class="canvas-dim-label">500 × 500</span> px)</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="svg-bounds-type" value="extents"> Tight Extents of Shapes (Auto-Crop)
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="svg-bounds-type" value="selected"> Selected Entities Only
+              </label>
+            </div>
+          </div>
+          <div class="field-group" id="svg-padding-group" style="display: none;">
+            <label>Padding Margin (px)</label>
+            <input type="number" id="svg-padding-input" class="input-prop" value="10" min="0" max="100">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="menu-btn" id="svg-modal-cancel">Cancel</button>
+          <button class="menu-btn primary" id="svg-modal-download">Save SVG</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Radial Array / Circular Duplicate Options Modal -->
+    <div class="modal-overlay" id="radial-array-modal" style="display: none;">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Radial Array / Circular Duplicate</h3>
+          <button class="modal-close" id="radial-array-modal-close">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="field-group">
+            <label>Total Items / Clones (e.g. 8 Petals)</label>
+            <input type="number" id="radial-count-input" class="input-prop" value="8" min="2" max="64">
+          </div>
+          <div class="field-group">
+            <label>Total Span Angle (°)</label>
+            <input type="number" id="radial-angle-input" class="input-prop" value="360" min="15" max="360">
+          </div>
+          <div class="field-group">
+            <label>Rotation Pivot Origin</label>
+            <select id="radial-pivot-select" class="input-prop">
+              <option value="pivot" selected>Custom Pivot Anchor ⨁ (or Element Center)</option>
+              <option value="canvas">Canvas Center (250, 250)</option>
+              <option value="bottom">Element Bottom-Center</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="menu-btn" id="radial-array-modal-cancel">Cancel</button>
+          <button class="menu-btn primary" id="radial-array-modal-apply">Create Radial Pattern</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mirror / Symmetry Duplicate Options Modal -->
+    <div class="modal-overlay" id="mirror-modal" style="display: none;">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>🪞 Mirror / Symmetry Duplicate</h3>
+          <button class="modal-close" id="mirror-modal-close">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="field-group">
+            <label>Mirror Direction / Side</label>
+            <select id="mirror-direction-select" class="input-prop">
+              <option value="right" selected>Right Edge (Duplicate Right)</option>
+              <option value="left">Left Edge (Duplicate Left)</option>
+              <option value="bottom">Bottom Edge (Duplicate Down)</option>
+              <option value="top">Top Edge (Duplicate Up)</option>
+              <option value="horizontal">Center Horizontal (Flip Across Center)</option>
+              <option value="vertical">Center Vertical (Flip Across Center)</option>
+            </select>
+          </div>
+          <div class="field-group" style="margin-top: 10px;">
+            <label class="checkbox-label" style="display:flex; align-items:center; gap:8px; font-weight:600; cursor:pointer;">
+              <input type="checkbox" id="mirror-keep-original" checked> Keep Original (Create Mirrored Duplicate)
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="menu-btn" id="mirror-modal-cancel">Cancel</button>
+          <button class="menu-btn primary" id="mirror-modal-apply">Apply Mirror</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SVG Parsing Error Modal -->
+    <div class="modal-overlay" id="svg-error-modal" style="display: none;">
+      <div class="modal-card" style="max-width: 540px;">
+        <div class="modal-header">
+          <h3 style="color: #E53E3E;">⚠️ SVG Parsing Error / Incomplete File</h3>
+          <button class="modal-close" id="svg-error-modal-close">✕</button>
+        </div>
+        <div class="modal-body">
+          <p style="margin-bottom: 12px; font-size: 13px; color: var(--text-color);">
+            The SVG file could not be parsed completely. It appears to be truncated, incomplete, or contains XML syntax errors.
+          </p>
+          <div class="field-group">
+            <label>Parser Error Details</label>
+            <pre id="svg-error-log-details" style="background: var(--bg-canvas); border: 1px solid var(--border-color); padding: 10px; font-family: monospace; font-size: 11px; max-height: 140px; overflow-y: auto; white-space: pre-wrap; color: #E53E3E; border-radius: 4px;"></pre>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="menu-btn" id="svg-error-modal-dismiss">Dismiss</button>
+          <button class="menu-btn primary" id="svg-error-modal-autofix" style="background-color: #ED8936;">Attempt Auto-Fix & Load</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resizable Splitter Handle -->
+    <div class="panel-resizer" id="inspector-resizer" title="Drag to Resize Panel"></div>
+
+    <!-- Right Inspector / Property Panel -->
+    <aside class="right-inspector" id="right-inspector">
+      <div class="panel-tab-header">
+        <button class="tab-btn active" data-tab="tab-element">Element</button>
+        <button class="tab-btn" data-tab="tab-trace">Trace Image</button>
+        <button class="tab-btn" data-tab="tab-canvas">Canvas</button>
+        <button class="tab-btn" data-tab="tab-scada">SCADA Tagging</button>
+      </div>
+
+      <!-- Tab 1: Element Properties & Styling -->
+      <div class="tab-content active" id="tab-element">
+        <div class="inspector-section" id="section-transform">
+          <div class="section-title">TRANSFORM & POSITION</div>
+          <div class="property-grid cols-2">
+            <div class="field-group">
+              <label>X Position</label>
+              <input type="number" id="prop-x" class="input-prop" value="0" min="-10000" max="10000">
+            </div>
+            <div class="field-group">
+              <label>Y Position</label>
+              <input type="number" id="prop-y" class="input-prop" value="0" min="-10000" max="10000">
+            </div>
+            <div class="field-group">
+              <label>Width</label>
+              <input type="number" id="prop-w" class="input-prop" value="0" min="1" max="10000">
+            </div>
+            <div class="field-group">
+              <label>Height</label>
+              <input type="number" id="prop-h" class="input-prop" value="0" min="1" max="10000">
+            </div>
+            <div class="field-group">
+              <label>Rotation (°)</label>
+              <input type="number" id="prop-rotate" class="input-prop" value="0" min="-360" max="360">
+            </div>
+            <div class="field-group">
+              <label>Flip Object</label>
+              <div style="display:flex; gap:4px;">
+                <button type="button" class="btn-subtle" id="btn-quick-flip-h" title="Flip Horizontal (Ctrl+Shift+H)" style="flex:1; padding:4px; font-weight:600; font-size:11px; cursor:pointer; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:4px; color:var(--text-main);">↔ Horiz</button>
+                <button type="button" class="btn-subtle" id="btn-quick-flip-v" title="Flip Vertical (Ctrl+Shift+V)" style="flex:1; padding:4px; font-weight:600; font-size:11px; cursor:pointer; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:4px; color:var(--text-main);">↕ Vert</button>
+              </div>
+            </div>
+            <div class="field-group">
+              <label>Corner Radius</label>
+              <input type="number" id="prop-rx" class="input-prop" value="0" min="0" max="500">
+            </div>
+          </div>
+
+          <div class="property-grid cols-1" id="text-prop-group" style="margin-top: 8px;">
+            <div class="field-group">
+              <label>Text Content</label>
+              <input type="text" id="prop-text-content" class="input-prop" placeholder="Enter text...">
+            </div>
+            <div class="property-grid cols-2" style="margin-top: 4px;">
+              <div class="field-group">
+                <label>Font Size (px)</label>
+                <input type="number" id="prop-font-size" class="input-prop" value="20" min="6" max="200">
+              </div>
+              <div class="field-group">
+                <label>Font Family</label>
+                <select id="prop-font-family" class="input-select">
+                  <option value="Inter, sans-serif">Inter</option>
+                  <option value="Arial, sans-serif">Arial</option>
+                  <option value="'JetBrains Mono', monospace">Monospace</option>
+                  <option value="Times New Roman, serif">Serif</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="inspector-section" id="section-style">
+          <div class="section-title">FILL & STROKE</div>
+
+          <!-- Color Mode Toggle: Solid vs Gradient -->
+          <div class="fill-mode-selector">
+            <button class="mode-btn active" data-fill-mode="solid">Solid</button>
+            <button class="mode-btn" data-fill-mode="linear">Linear Gradient</button>
+            <button class="mode-btn" data-fill-mode="radial">Radial Gradient</button>
+          </div>
+
+          <!-- Color Picker Container -->
+          <div class="color-picker-box" id="color-picker-box">
+            <!-- Custom SCADA Swatches -->
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+              <div class="swatch-header" style="margin:0;">SCADA Swatches</div>
+              <button id="btn-apply-isa-gray" class="mini-btn" style="font-size:10px; font-weight:600; padding:2px 8px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:4px; cursor:pointer;" title="Convert selected symbol to ISA-101 neutral gray">⚙️ ISA-101 Gray</button>
+            </div>
+            <div class="swatch-palette" id="swatch-palette">
+              <div class="swatch" style="background:#E53935;" data-color="#E53935" title="Alarm Red"></div>
+              <div class="swatch" style="background:#FDD835;" data-color="#FDD835" title="Warning Yellow"></div>
+              <div class="swatch" style="background:#4CAF50;" data-color="#4CAF50" title="Running Green"></div>
+              <div class="swatch" style="background:#1E88E5;" data-color="#1E88E5" title="Standby Blue"></div>
+              <div class="swatch" style="background:#757575;" data-color="#757575" title="Inactive Gray"></div>
+              <div class="swatch" style="background:#262626;" data-color="#262626" title="Dark Metal"></div>
+              <div class="swatch" style="background:#B0BEC5;" data-color="#B0BEC5" title="Steel Gray"></div>
+              <div class="swatch" style="background:#FF9800;" data-color="#FF9800" title="Process Amber"></div>
+              <div class="swatch" style="background:#00BCD4;" data-color="#00BCD4" title="Water Cyan"></div>
+              <div class="swatch" style="background:transparent; border:1px dashed #aaa;" data-color="none" title="Transparent/None"></div>
+            </div>
+
+            <!-- Color Format Tabs: Hex, RGB, HSL -->
+            <div class="color-format-header">
+              <span class="active" data-color-fmt="hex">HEX</span>
+              <span data-color-fmt="rgb">RGB</span>
+              <span data-color-fmt="hsl">HSL</span>
+            </div>
+
+            <div class="color-inputs-container">
+              <!-- HEX / SCADA Custom Color Picker -->
+              <div class="color-fmt-panel active" id="fmt-hex-panel">
+                <div class="color-preview-row">
+                  <button type="button" class="color-trigger-btn" id="btn-color-fill" title="Click to open Color Picker">
+                    <div class="color-trigger-chip" id="fill-chip" style="background:#3182CE;"></div>
+                    <span class="color-trigger-hex" id="fill-hex-label">#3182CE</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- RGB Inputs -->
+              <div class="color-fmt-panel" id="fmt-rgb-panel">
+                <div class="rgb-inputs">
+                  <label>R <input type="number" id="rgb-r" min="0" max="255" value="76"></label>
+                  <label>G <input type="number" id="rgb-g" min="0" max="255" value="175"></label>
+                  <label>B <input type="number" id="rgb-b" min="0" max="255" value="80"></label>
+                </div>
+              </div>
+
+              <!-- HSL Inputs -->
+              <div class="color-fmt-panel" id="fmt-hsl-panel">
+                <div class="hsl-inputs">
+                  <label>H <input type="number" id="hsl-h" min="0" max="360" value="122">°</label>
+                  <label>S <input type="number" id="hsl-s" min="0" max="100" value="39">%</label>
+                  <label>L <input type="number" id="hsl-l" min="0" max="100" value="49">%</label>
+                </div>
+              </div>
+
+              <!-- Opacity / Alpha Slider -->
+              <div class="field-group opacity-group">
+                <label>Opacity: <span id="opacity-val">100%</span></label>
+                <input type="range" id="prop-opacity" min="0" max="1" step="0.01" value="1">
+              </div>
+            </div>
+
+            <!-- Gradient Controls Panel (visible when gradient mode active) -->
+            <div class="gradient-panel" id="gradient-panel" style="display:none;">
+              <div class="section-title">GRADIENT SETTINGS</div>
+              <div class="gradient-preview-bar" id="gradient-preview-bar"></div>
+              <div class="field-group" style="margin-top: 6px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 6px;">
+                  <label style="margin:0;">Preset Gradients</label>
+                  <div id="grad-angle-group" style="display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:10px; color:var(--text-muted); font-weight:600;">Angle: <span id="grad-angle-val" style="color:var(--text-main);">90°</span></span>
+                    <input type="range" id="grad-angle" min="0" max="360" value="90" style="width:75px;">
+                  </div>
+                </div>
+                <div class="gradient-presets">
+                  <button class="grad-preset-btn" data-grad-preset="metal">Steel Pipe</button>
+                  <button class="grad-preset-btn" data-grad-preset="copper">Copper</button>
+                  <button class="grad-preset-btn" data-grad-preset="gold">Brass/Gold</button>
+                  <button class="grad-preset-btn" data-grad-preset="led-green">Green LED</button>
+                  <button class="grad-preset-btn" data-grad-preset="led-red">Red LED</button>
+                  <button class="grad-preset-btn" data-grad-preset="led-blue">Blue LED</button>
+                  <button class="grad-preset-btn" data-grad-preset="led-amber">Amber LED</button>
+                  <button class="grad-preset-btn" data-grad-preset="led-off">Off/Gray LED</button>
+                  <button class="grad-preset-btn" data-grad-preset="liquid-water">Water Flow</button>
+                </div>
+              </div>
+              <div class="field-group" id="custom-stop-group">
+                <div class="custom-stops-single-row" style="display:flex; align-items:center; justify-space-between; gap:12px; margin-top:4px;">
+                  <label class="checkbox-label" style="display:flex; align-items:center; gap:6px; font-weight:600; cursor:pointer; white-space:nowrap; font-size:11px;">
+                    <input type="checkbox" id="chk-use-custom-stops"> Custom Stops:
+                  </label>
+                  <div class="custom-pickers-inline" id="custom-stops-pickers" style="display:flex; align-items:center; gap:10px; opacity:0.5; pointer-events:none;">
+                    <div style="display:flex; align-items:center; gap:4px;">
+                      <span style="font-size:11px; color:var(--text-muted);">Start</span>
+                      <input type="color" id="grad-start-color" value="#ffffff" style="border:1px solid var(--border-color); border-radius:4px; height:24px; width:34px; cursor:pointer;">
+                    </div>
+                    <div style="display:flex; align-items:center; gap:4px;">
+                      <span style="font-size:11px; color:var(--text-muted);">End</span>
+                      <input type="color" id="grad-end-color" value="#000000" style="border:1px solid var(--border-color); border-radius:4px; height:24px; width:34px; cursor:pointer;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stroke Styling -->
+          <div class="property-grid cols-2 stroke-grid">
+            <div class="field-group">
+              <label>Stroke Color</label>
+              <button type="button" class="color-trigger-btn" id="btn-color-stroke" title="Click to open Stroke Color Picker">
+                <div class="color-trigger-chip" id="stroke-chip" style="background:#262626;"></div>
+                <span class="color-trigger-hex" id="stroke-hex-label">#262626</span>
+              </button>
+            </div>
+            <div class="field-group">
+              <label>Stroke Width</label>
+              <input type="number" id="prop-stroke-width" class="input-prop" value="2" min="0" max="100">
+            </div>
+            <div class="field-group">
+              <label>Stroke Dash</label>
+              <select id="prop-stroke-dash" class="input-select">
+                <option value="none">Solid</option>
+                <option value="4,4">Dashed (4,4)</option>
+                <option value="8,4">Long Dash</option>
+                <option value="2,2">Dotted</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Arrowhead Markers Panel -->
+          <div class="property-grid cols-2" id="marker-prop-group" style="margin-top: 8px;">
+            <div class="field-group">
+              <label>Start Marker</label>
+              <select id="prop-marker-start" class="input-select">
+                <option value="none">None</option>
+                <option value="url(#marker-arrow-start)">Arrow</option>
+                <option value="url(#marker-circle)">Circle</option>
+                <option value="url(#marker-diamond)">Diamond</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label>End Marker</label>
+              <select id="prop-marker-end" class="input-select">
+                <option value="none">None</option>
+                <option value="url(#marker-arrow-end)">Arrow</option>
+                <option value="url(#marker-circle)">Circle</option>
+                <option value="url(#marker-diamond)">Diamond</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Polygon & Star Controls -->
+          <div class="property-grid cols-2" id="polygon-prop-group" style="display:none; margin-top: 8px;">
+            <div class="field-group">
+              <label>Sides / Points</label>
+              <input type="number" id="prop-polygon-sides" class="input-prop" value="5" min="3" max="32">
+            </div>
+            <div class="field-group" id="star-ratio-group" style="display:none;">
+              <label>Inner Radius</label>
+              <input type="range" id="prop-star-ratio" min="0.1" max="0.9" step="0.05" value="0.4" style="width:100%;">
+            </div>
+          </div>
+
+          <!-- Path / Bézier Controls -->
+          <div class="field-group" id="path-prop-group" style="display:none; margin-top: 8px;">
+            <label class="checkbox-label" style="display:flex; align-items:center; gap:6px; font-weight:600; cursor:pointer; font-size:11px;">
+              <input type="checkbox" id="chk-path-closed"> Close Path Loop (Z)
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Reference Image Tracing Layer -->
+      <div class="tab-content" id="tab-trace">
+        <div class="inspector-section">
+          <div class="section-title">REFERENCE SKETCH IMAGE</div>
+          
+          <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+            <button type="button" class="menu-btn primary" id="btn-load-trace-img" style="flex: 1; padding: 6px 10px; font-weight: 600;">
+              📁 Load Image
+            </button>
+            <input type="file" id="input-trace-file" accept="image/*" style="display: none;">
+            <button type="button" class="menu-btn" id="btn-remove-trace-img" style="padding: 6px 10px;" disabled>
+              🗑️ Clear
+            </button>
+          </div>
+
+          <div id="trace-controls-wrapper" style="opacity: 0.5; pointer-events: none;">
+            <div class="field-group" style="margin-bottom: 12px;">
+              <label class="checkbox-label" style="display:flex; align-items:center; gap:8px; font-weight:600; cursor:pointer;">
+                <input type="checkbox" id="chk-trace-visible" checked> Show Reference Image
+              </label>
+            </div>
+
+            <div class="field-group" style="margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label style="margin-bottom: 0;">Opacity</label>
+                <span id="lbl-trace-opacity" style="font-size: 11px; font-weight: 600; color: var(--text-color);">50%</span>
+              </div>
+              <input type="range" id="slider-trace-opacity" class="input-prop" min="1" max="100" value="50">
+            </div>
+
+            <div class="field-group" style="margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label style="margin-bottom: 0;">Scale (Zoom)</label>
+                <span id="lbl-trace-scale" style="font-size: 11px; font-weight: 600; color: var(--text-color);">1.0x</span>
+              </div>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <input type="range" id="slider-trace-scale" class="input-prop" min="0.1" max="10" step="0.1" value="1.0" style="flex: 1;">
+                <input type="number" id="num-trace-scale" class="input-prop" min="0.1" max="10" step="0.1" value="1.0" style="width: 65px;">
+              </div>
+            </div>
+
+            <div class="property-grid cols-2" style="margin-bottom: 12px;">
+              <div class="field-group">
+                <label>Offset X (px)</label>
+                <input type="number" id="num-trace-pos-x" class="input-prop" value="0" step="1">
+              </div>
+              <div class="field-group">
+                <label>Offset Y (px)</label>
+                <input type="number" id="num-trace-pos-y" class="input-prop" value="0" step="1">
+              </div>
+            </div>
+
+            <div class="field-group" style="margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--border-color);">
+              <label class="checkbox-label" style="display:flex; align-items:center; gap:8px; font-weight:600; cursor:pointer;">
+                <input type="checkbox" id="chk-trace-export"> Include in SVG / PNG Export
+              </label>
+              <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 3px; line-height: 1.3;">
+                (Excluded by default to keep final SVG artwork clean)
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Canvas Settings -->
+      <div class="tab-content" id="tab-canvas">
+        <div class="inspector-section">
+          <div class="section-title">DOCUMENT PROPERTIES</div>
+          <div class="property-grid cols-2">
+            <div class="field-group">
+              <label>Canvas Width</label>
+              <input type="number" id="canvas-prop-w" class="input-prop" value="500" min="50" max="10000">
+            </div>
+            <div class="field-group">
+              <label>Canvas Height</label>
+              <input type="number" id="canvas-prop-h" class="input-prop" value="500" min="50" max="10000">
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label>Grid Size (px)</label>
+            <input type="number" id="canvas-prop-grid" class="input-prop" value="10" min="5" max="100">
+          </div>
+          <div class="field-group" style="margin-bottom: 8px;">
+            <label class="radio-label" style="font-weight: 600; cursor: pointer;">
+              <input type="checkbox" id="chk-show-centerline" checked> Show Centerlines
+            </label>
+          </div>
+          <div class="field-group">
+            <label>Centerline Color</label>
+            <button type="button" class="color-trigger-btn" id="btn-canvas-centerline-color-picker" title="Click to pick Centerline Color">
+              <div class="color-trigger-chip" id="canvas-centerline-color-chip" style="background:#CBD5E0;"></div>
+              <span class="color-trigger-hex" id="canvas-centerline-color-label">#CBD5E0</span>
+              <input type="hidden" id="canvas-centerline-color" value="#CBD5E0">
+            </button>
+          </div>
+
+          <div class="section-title" style="margin-top: 16px;">DEFAULT NEW ELEMENT STYLES</div>
+          <div class="field-group">
+            <label>Default Fill Color</label>
+            <button type="button" class="color-trigger-btn" id="btn-canvas-default-fill-picker" title="Click to pick Default Fill Color">
+              <div class="color-trigger-chip" id="canvas-default-fill-chip" style="background:#3182CE;"></div>
+              <span class="color-trigger-hex" id="canvas-default-fill-label">#3182CE</span>
+              <input type="hidden" id="canvas-default-fill" value="#3182CE">
+            </button>
+          </div>
+          <div class="field-group">
+            <label>Default Stroke Color</label>
+            <button type="button" class="color-trigger-btn" id="btn-canvas-default-stroke-picker" title="Click to pick Default Stroke Color">
+              <div class="color-trigger-chip" id="canvas-default-stroke-chip" style="background:#2D3748;"></div>
+              <span class="color-trigger-hex" id="canvas-default-stroke-label">#2D3748</span>
+              <input type="hidden" id="canvas-default-stroke" value="#2D3748">
+            </button>
+          </div>
+          <div class="field-group">
+            <label>Default Stroke Width (px)</label>
+            <input type="number" id="canvas-default-stroke-width" class="input-prop" value="2" min="0" max="50">
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: SCADA Binding & Metadata Tagging -->
+      <div class="tab-content" id="tab-scada">
+        <div class="inspector-section">
+          <div class="section-title">SCADA TAG BINDING</div>
+          <p class="section-desc">Assign semantic IDs & classes for host SCADA dynamic rendering, PLC tag mapping, or CSS animation states.</p>
+          
+          <div class="field-group">
+            <label>Element ID (`id` attribute)</label>
+            <input type="text" id="scada-prop-id" class="input-prop" placeholder="e.g. pump_01_body">
+          </div>
+
+          <div class="field-group">
+            <label>CSS Class (`class` attribute)</label>
+            <input type="text" id="scada-prop-class" class="input-prop" placeholder="e.g. SCADA-pipe-active alarm-state">
+          </div>
+
+          <div class="field-group">
+            <label>Custom Data Attribute (`data-tag`)</label>
+            <input type="text" id="scada-prop-datatag" class="input-prop" placeholder="e.g. PLC_TAG_PRESSURE_01">
+          </div>
+
+          <div class="scada-tag-quick-presets">
+            <div class="section-title">QUICK SCADA CLASS TAGS</div>
+            <div class="tag-chips">
+              <span class="tag-chip" data-apply-class="scada-status-running">scada-status-running</span>
+              <span class="tag-chip" data-apply-class="scada-status-alarm">scada-status-alarm</span>
+              <span class="tag-chip" data-apply-class="scada-status-warning">scada-status-warning</span>
+              <span class="tag-chip" data-apply-class="scada-animated-flow">scada-animated-flow</span>
+              <span class="tag-chip" data-apply-class="scada-valve-open">scada-valve-open</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Bottom Drawer: Live SVG XML Code View -->
+  <footer class="bottom-drawer collapsed" id="bottom-drawer">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <svg class="icon"><use href="#icon-code"></use></svg>
+        <span>Live SVG XML Source Code (2-Way Editing)</span>
+      </div>
+      <div class="drawer-actions">
+        <button id="btn-find-selected-xml" class="mini-btn" style="background:var(--accent-color, #3182CE); color:#fff; font-weight:600;" title="Locate and highlight XML code for selected canvas element">🔍 Find Selected</button>
+        <button id="btn-format-xml" class="mini-btn">Clean & Format XML (VB.NET)</button>
+        <button id="btn-copy-xml" class="mini-btn">Copy to Clipboard</button>
+        <button id="btn-toggle-drawer" class="mini-btn">Expand ▲</button>
+      </div>
+    </div>
+    <div class="drawer-body">
+      <textarea id="svg-xml-editor" class="xml-editor-textarea" spellcheck="false"></textarea>
+    </div>
+  </footer>
+  </div>
+
+  <!-- SVG Icon Library Sprite -->
+  <svg style="display:none;">
+    <defs>
+      <symbol id="icon-new" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="none" stroke="currentColor" stroke-width="2"/><polyline points="14 2 14 8 20 8" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="18" x2="12" y2="12" stroke="currentColor" stroke-width="2"/><line x1="9" y1="15" x2="15" y2="15" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-folder" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" fill="none" stroke="currentColor" stroke-width="2"/><polyline points="7 10 12 15 17 10" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><polyline points="21 15 16 10 5 21" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-undo" viewBox="0 0 24 24"><path d="M3 7v6h6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-redo" viewBox="0 0 24 24"><path d="M21 7v6h-6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-group" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-ungroup" viewBox="0 0 24 24"><path d="M8 8h8v8H8z" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="2,2"/><rect x="2" y="2" width="5" height="5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="17" y="17" width="5" height="5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-layer" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="icon-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-paste" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"/><line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="2"/><line x1="3" y1="15" x2="21" y2="15" stroke="currentColor" stroke-width="2"/><line x1="9" y1="3" x2="9" y2="21" stroke="currentColor" stroke-width="2"/><line x1="15" y1="3" x2="15" y2="21" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-magnet" viewBox="0 0 24 24"><path d="M6 15v-6a6 6 0 1 1 12 0v6M6 15H3.5a1.5 1.5 0 0 1-1.5-1.5v-3A1.5 1.5 0 0 1 3.5 9H6m12 6h2.5a1.5 1.5 0 0 0 1.5-1.5v-3A1.5 1.5 0 0 0 20.5 9H18" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-cursor" viewBox="0 0 24 24"><path d="M3 3l7 18 3-7 7-3L3 3z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-hand" viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-4 0v5M14 10V4a2 2 0 0 0-4 0v6M10 10.5V2a2 2 0 0 0-4 0v9M6 10v4a7 7 0 0 0 7 7h1a7 7 0 0 0 7-7v-3a2 2 0 0 0-4 0" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-rect" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-line" viewBox="0 0 24 24"><line x1="5" y1="19" x2="19" y2="5" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-polyline" viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-polygon" viewBox="0 0 24 24"><polygon points="12 2 22 8 22 17 12 22 2 17 2 8" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-star" viewBox="0 0 24 24"><polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-arrow" viewBox="0 0 24 24"><line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2"/><polyline points="14 6 20 12 14 18" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-arc" viewBox="0 0 24 24"><path d="M 4 18 A 14 14 0 0 1 18 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="icon-bezier" viewBox="0 0 24 24"><path d="M 4 20 C 4 4, 20 20, 20 4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="4" cy="20" r="2" fill="currentColor"/><circle cx="20" cy="4" r="2" fill="currentColor"/></symbol>
+      <symbol id="icon-pen" viewBox="0 0 24 24"><path d="M12 19l7-7 3 3-7 7-3-3zM18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-text" viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="4" x2="12" y2="20" stroke="currentColor" stroke-width="2"/><line x1="8" y1="20" x2="16" y2="20" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-pipe" viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="6" y1="8" x2="6" y2="16" stroke="currentColor" stroke-width="2"/><line x1="18" y1="8" x2="18" y2="16" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-valve" viewBox="0 0 24 24"><polygon points="3,6 12,12 3,18" fill="none" stroke="currentColor" stroke-width="2"/><polygon points="21,6 12,12 21,18" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="12" x2="12" y2="4" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="4" r="2" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-lamp" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2"/><line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-tank" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="16" rx="7" fill="none" stroke="currentColor" stroke-width="2"/><line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-dasharray="3,3"/></symbol>
+      <symbol id="icon-elbow" viewBox="0 0 24 24"><path d="M4 20h8a8 8 0 0 0 8-8V4" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></symbol>
+      <symbol id="icon-tee" viewBox="0 0 24 24"><path d="M4 12h16M12 12v8" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></symbol>
+      <symbol id="icon-flange" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="3"/></symbol>
+      <symbol id="icon-pump" viewBox="0 0 24 24"><circle cx="12" cy="13" r="7" fill="none" stroke="currentColor" stroke-width="2"/><polygon points="12,6 18,13 6,13" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="20" x2="12" y2="22" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-motor" viewBox="0 0 24 24"><rect x="5" y="6" width="14" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><text x="12" y="15" font-size="10" font-weight="bold" text-anchor="middle" fill="currentColor">M</text><line x1="1" y1="12" x2="5" y2="12" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-agitator" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="4" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="7" x2="12" y2="18" stroke="currentColor" stroke-width="2"/><path d="M7 18c5-2 5 2 10 0" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-blower" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4v8l6 4" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-knob" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="12" x2="12" y2="6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></symbol>
+      <symbol id="icon-switch" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="8" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="12" r="3" fill="currentColor"/></symbol>
+      <symbol id="icon-estop" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="6" fill="currentColor"/></symbol>
+      <symbol id="icon-duct" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><line x1="8" y1="7" x2="8" y2="17" stroke="currentColor" stroke-width="1.5"/><line x1="16" y1="7" x2="16" y2="17" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="icon-duct-elbow" viewBox="0 0 24 24"><path d="M4 20v-6a8 8 0 0 1 8-8h6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><line x1="2" y1="20" x2="6" y2="20" stroke="currentColor" stroke-width="2"/><line x1="18" y1="4" x2="18" y2="8" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-duct-reducer" viewBox="0 0 24 24"><polygon points="3,5 21,8 21,16 3,19" fill="none" stroke="currentColor" stroke-width="2"/><line x1="3" y1="3" x2="3" y2="21" stroke="currentColor" stroke-width="2"/><line x1="21" y1="6" x2="21" y2="18" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-damper" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" fill="none" stroke="currentColor" stroke-width="2"/><line x1="5" y1="9" x2="19" y2="15" stroke="currentColor" stroke-width="2"/><line x1="5" y1="15" x2="19" y2="9" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-ahu" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="15" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 8v8M8 8v8" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="icon-filter" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><polyline points="6,6 18,9 6,12 18,15 6,18" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="icon-heater-coil" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 6v12M11 6v12M15 6v12" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2,2"/><path d="M7 6h10M7 12h10M7 18h10" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="icon-cooler-coil" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><polyline points="7,6 17,9 7,12 17,15 7,18" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="4" y1="21" x2="20" y2="21" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-bag-filter" viewBox="0 0 24 24"><rect x="3" y="3" width="4" height="18" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 5c6 0 10 2 10 3s-4 3-10 3M7 11c6 0 10 2 10 3s-4 3-10 3" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="icon-gauge" viewBox="0 0 24 24"><path d="M4 16a8 8 0 1 1 16 0" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="16" x2="17" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="icon-meter" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="6" y="8" width="12" height="5" fill="none" stroke="currentColor" stroke-width="1"/><line x1="6" y1="16" x2="18" y2="16" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-flowmeter" viewBox="0 0 24 24"><rect x="2" y="9" width="20" height="6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 9l2 3-2 3-2-3z" fill="currentColor"/></symbol>
+      <symbol id="icon-sensor-duct" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="13" x2="12" y2="21" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="21" r="1.5" fill="currentColor"/></symbol>
+      <symbol id="icon-sensor-room" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="8" y1="6" x2="16" y2="6" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="8" x2="16" y2="8" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="12" width="8" height="5" fill="none" stroke="currentColor" stroke-width="1"/></symbol>
+      <symbol id="icon-sensor-outside" viewBox="0 0 24 24"><path d="M6 5h12M4 9h16M6 13h12M8 17h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="17" x2="12" y2="22" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-sensor-uv" viewBox="0 0 24 24"><rect x="6" y="10" width="12" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 10 A 5 5 0 0 1 17 10" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="2" x2="12" y2="4" stroke="currentColor" stroke-width="2"/><line x1="5" y1="5" x2="7" y2="7" stroke="currentColor" stroke-width="2"/><line x1="19" y1="5" x2="17" y2="7" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><polygon points="12,4 14.5,12 12,10 9.5,12" fill="currentColor"/><polygon points="12,20 14.5,12 12,14 9.5,12" fill="none" stroke="currentColor" stroke-width="1"/></symbol>
+      <symbol id="icon-house" viewBox="0 0 24 24"><polygon points="12,3 2,11 5,11 5,21 19,21 19,11 22,11" fill="none" stroke="currentColor" stroke-width="2"/><rect x="10" y="14" width="4" height="7" fill="currentColor"/></symbol>
+      <symbol id="icon-bungalow" viewBox="0 0 24 24"><polygon points="12,5 1,12 4,12 4,20 20,20 20,12 23,12" fill="none" stroke="currentColor" stroke-width="2"/><rect x="6" y="14" width="4" height="4" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="14" width="4" height="4" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="icon-garage" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="15" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><rect x="6" y="10" width="12" height="11" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="6" y1="13" x2="18" y2="13" stroke="currentColor" stroke-width="1"/><line x1="6" y1="16" x2="18" y2="16" stroke="currentColor" stroke-width="1"/></symbol>
+      <symbol id="icon-workshop" viewBox="0 0 24 24"><polygon points="2,10 7,6 12,10 17,6 22,10 22,20 2,20" fill="none" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="icon-greenhouse" viewBox="0 0 24 24"><polygon points="12,3 3,9 3,21 21,21 21,9" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="3" x2="12" y2="21" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="13" x2="21" y2="13" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="icon-office" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><rect x="7" y="6" width="4" height="3" fill="currentColor"/><rect x="13" y="6" width="4" height="3" fill="currentColor"/><rect x="7" y="11" width="4" height="3" fill="currentColor"/><rect x="13" y="11" width="4" height="3" fill="currentColor"/><rect x="10" y="17" width="4" height="4" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="icon-tower-block" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><line x1="10" y1="5" x2="14" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="9" x2="14" y2="9" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="13" x2="14" y2="13" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="17" x2="14" y2="17" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="icon-factory" viewBox="0 0 24 24"><polygon points="2,10 6,7 9,10 13,7 16,10 20,7 20,20 2,20" fill="none" stroke="currentColor" stroke-width="2"/><line x1="2" y1="20" x2="20" y2="20" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-new-shop" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><rect x="4" y="5" width="16" height="4" fill="currentColor"/><rect x="5" y="11" width="8" height="8" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="15" y="11" width="4" height="8" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="icon-vintage-shop" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M 3 8 Q 6 11, 9 8 Q 12 11, 15 8 Q 18 11, 21 8" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="5" y="12" width="5" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1"/><rect x="14" y="12" width="5" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1"/></symbol>
+      <symbol id="icon-diner" viewBox="0 0 24 24"><rect x="2" y="9" width="20" height="12" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><rect x="6" y="5" width="12" height="4" rx="2" fill="currentColor"/><rect x="4" y="11" width="16" height="4" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="icon-tree" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4.8 3.5 6L8 22h8l-.5-7c2-1.2 3.5-3.5 3.5-6a7 7 0 0 0-7-7z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-pine-tree" viewBox="0 0 24 24"><polygon points="12,2 5,10 8,10 4,16 9,16 11,22 13,22 15,16 20,16 16,10 19,10" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-shrub" viewBox="0 0 24 24"><path d="M6 18a5 5 0 0 1-1-9.8 6 6 0 0 1 11.5-2.2 5 5 0 0 1 2.5 9.8H6z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-flower-bed" viewBox="0 0 24 24"><rect x="3" y="15" width="18" height="6" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="7" cy="11" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="10" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17" cy="11" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="icon-flower" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"/><circle cx="12" cy="5" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="19" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="19" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="5" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="icon-fencing" viewBox="0 0 24 24"><path d="M4 6l2-3 2 3v15H4V6zm7 0l2-3 2 3v15h-4V6zm7 0l2-3 2 3v15h-4V6z" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="8" x2="22" y2="8" stroke="currentColor" stroke-width="2"/><line x1="2" y1="16" x2="22" y2="16" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-trellis" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"/><line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="1"/><line x1="3" y1="15" x2="21" y2="15" stroke="currentColor" stroke-width="1"/><line x1="9" y1="3" x2="9" y2="21" stroke="currentColor" stroke-width="1"/><line x1="15" y1="3" x2="15" y2="21" stroke="currentColor" stroke-width="1"/></symbol>
+      <symbol id="icon-brick-wall" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="14" x2="21" y2="14" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="4" x2="12" y2="9" stroke="currentColor" stroke-width="1.5"/><line x1="7" y1="9" x2="7" y2="14" stroke="currentColor" stroke-width="1.5"/><line x1="17" y1="9" x2="17" y2="14" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="14" x2="12" y2="20" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="icon-pond" viewBox="0 0 24 24"><path d="M4 14c0-5 4-9 9-9s9 4 9 8-4 7-9 7-9-1-9-6z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="10" cy="12" r="2" fill="currentColor"/></symbol>
+      <symbol id="icon-block-paving" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 9h6v6H3zM9 3h6v6H9zM15 9h6v6h-6zM9 15h6v6H9z" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="icon-hedge" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><line x1="6" y1="12" x2="18" y2="12" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2,2"/></symbol>
+      <symbol id="icon-lamp-red" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="5" fill="currentColor"/></symbol>
+      <symbol id="icon-stack-light" viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="8" y1="7" x2="16" y2="7" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="17" x2="12" y2="22" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-beacon" viewBox="0 0 24 24"><path d="M7 14 A 5 5 0 0 1 17 14 Z" fill="currentColor"/><rect x="6" y="14" width="12" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="4" x2="12" y2="7" stroke="currentColor" stroke-width="2"/><line x1="5" y1="6" x2="7" y2="8" stroke="currentColor" stroke-width="2"/><line x1="19" y1="6" x2="17" y2="8" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-led-flat" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="6" y="9" width="12" height="6" rx="1" fill="currentColor"/></symbol>
+      <symbol id="icon-front" viewBox="0 0 24 24"><path d="M4 4h10v10H4zM10 10h10v10H10z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-back" viewBox="0 0 24 24"><path d="M10 10h10v10H10zM4 4h10v10H4z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-forward" viewBox="0 0 24 24"><path d="M6 14h8v4H6zM10 6h8v4h-8z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-backward" viewBox="0 0 24 24"><path d="M6 6h8v4H6zM10 14h8v4h-8z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-code" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6" fill="none" stroke="currentColor" stroke-width="2"/><polyline points="8 6 2 12 8 18" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="icon-ruler" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="6" y1="6" x2="6" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="6" x2="10" y2="10" stroke="currentColor" stroke-width="1.5"/><line x1="14" y1="6" x2="14" y2="12" stroke="currentColor" stroke-width="1.5"/><line x1="18" y1="6" x2="18" y2="10" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="icon-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></symbol>
+      <symbol id="icon-duct-tee" viewBox="0 0 24 24"><path d="M 3 8 L 21 8 L 21 14 L 16 14 L 16 21 L 8 21 L 8 14 L 3 14 Z" fill="none" stroke="currentColor" stroke-width="2"/><line x1="3" y1="8" x2="3" y2="14" stroke="currentColor" stroke-width="3"/><line x1="21" y1="8" x2="21" y2="14" stroke="currentColor" stroke-width="3"/><line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" stroke-width="3"/></symbol>
+      <symbol id="icon-import" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    </defs>
+  </svg>
+
+  <!-- Web UI Help Panel Drawer -->
+  <div id="helpPanel" class="help-panel hidden">
+    <div id="helpResizeHandle" class="help-resize-handle" title="Drag to resize"></div>
+    <div class="help-panel-header">
+      <span class="help-panel-title">📖 SimpleVG Help & User Guide</span>
+      <div class="help-panel-controls">
+        <input type="text" id="helpSearch" placeholder="Search help topics..." autocomplete="off">
+        <button id="btnHelpClose" title="Close help panel">✕</button>
+      </div>
+    </div>
+    <div class="help-panel-body">
+      <nav id="helpNav" class="help-nav"></nav>
+      <div class="help-content-area" id="helpContent"></div>
+    </div>
+  </div>
+
+  <script src="js/gradients.js"></script>
+  <script src="js/canvas.js"></script>
+  <script src="js/colorpicker.js"></script>
+  <script src="js/tools.js"></script>
+  <script src="js/inspector.js"></script>
+  <script src="js/exporter.js"></script>
+  <script src="js/help.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

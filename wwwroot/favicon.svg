@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- White Background Tile with Thin Blue Rounded Border -->
+  <rect width="64" height="64" rx="14" fill="#FFFFFF" stroke="#3182CE" stroke-width="1.5"/>
+  
+  <!-- Electric Blue Layer Stack Brand Geometry -->
+  <g transform="translate(8, 8) scale(2)" stroke="#3182CE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- Top Layer Surface with subtle blue fill -->
+    <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#3182CE" fill-opacity="0.15"/>
+    <!-- Middle Layer Plate -->
+    <path d="M2 12L12 17L22 12"/>
+    <!-- Bottom Layer Plate -->
+    <path d="M2 17L12 22L22 17"/>
+  </g>
+</svg>

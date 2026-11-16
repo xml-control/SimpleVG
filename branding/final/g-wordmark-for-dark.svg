@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="14 40 520 134" width="520" height="134">
+  <title>SimpleVG wordmark for dark backgrounds</title>
+  <g fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+    <!-- S: single Bezier path -->
+    <path d="M78 74 C72 54 34 56 36 80 C38 102 78 96 78 112 C78 138 36 138 30 120" stroke="#FFFFFF"/>
+    <!-- i -->
+    <line x1="110" y1="90" x2="110" y2="130"/>
+    <!-- m -->
+    <path d="M134 90 L134 130 M134 108 A18 18 0 0 1 170 108 L170 130 M170 108 A18 18 0 0 1 206 108 L206 130"/>
+    <!-- p -->
+    <path d="M232 90 L232 160"/><circle cx="252" cy="110" r="20"/>
+    <!-- l -->
+    <line x1="296" y1="58" x2="296" y2="130"/>
+    <!-- e -->
+    <path d="M318 110 L358 110 A20 20 0 1 0 352 124"/>
+    <!-- V -->
+    <path d="M376 58 L402 130 L428 58" stroke="#FBD38D"/>
+    <!-- G -->
+    <path d="M512 71 A36 36 0 1 0 512 117 L512 96 L486 96" stroke="#FBD38D"/>
+    <circle cx="110" cy="64" r="7" fill="#FFFFFF" stroke="none"/>
+  </g>
+  <g stroke="#FBD38D" stroke-width="3" fill="none"><line x1="78" y1="74" x2="72" y2="54"/><line x1="30" y1="120" x2="36" y2="138"/></g>
+  <g fill="#1A202C" stroke="#FBD38D" stroke-width="3"><circle cx="72" cy="54" r="5"/><circle cx="36" cy="138" r="5"/></g>
+</svg>

@@ -1,0 +1,45 @@
+[
+  {
+    "section": "Getting Started",
+    "topics": [
+      { "file": "Welcome.md", "title": "Welcome to SimpleVG", "order": 1 },
+      { "file": "Interface_Tour.md", "title": "Interface & Workspace Tour", "order": 2 },
+      { "file": "Keyboard_Shortcuts.md", "title": "Keyboard Shortcuts", "order": 3 },
+      { "file": "Server_Port_Configuration.md", "title": "Server & Port Configuration", "order": 4 }
+    ]
+  },
+  {
+    "section": "Drawing & Basic Tools",
+    "topics": [
+      { "file": "Basic_Shapes.md", "title": "Basic Vector Shapes", "order": 4 },
+      { "file": "Element_Tab.md", "title": "Inspector & Element Controls", "order": 5 },
+      { "file": "Format_Menu.md", "title": "Format, Align & Radial Patterns", "order": 6 },
+      { "file": "Canvas_Grid.md", "title": "Canvas, Grid & Snapping", "order": 7 },
+      { "file": "Trace_Image.md", "title": "Reference Image Tracing", "order": 8 },
+      { "file": "ISA_101_Gray.md", "title": "ISA-101 Gray HMI Mode", "order": 9 }
+    ]
+  },
+  {
+    "section": "File Tools",
+    "topics": [
+      { "file": "Import_Open.md", "title": "Opening & Importing SVG Files", "order": 10 },
+      { "file": "Svg_Xml_Drawer.md", "title": "Live SVG XML Drawer & 2-Way Code Editor", "order": 11 },
+      { "file": "Export_Save.md", "title": "Saving & Exporting (SVG / PNG)", "order": 12 }
+    ]
+  },
+  {
+    "section": "SCADA Symbol Libraries",
+    "topics": [
+      { "file": "Facilities.md", "title": "Facilities & Buildings", "order": 13 },
+      { "file": "HVAC_Ductwork.md", "title": "HVAC & Ductwork", "order": 14 },
+      { "file": "Knobs_Switches.md", "title": "Knobs & Switches", "order": 15 },
+      { "file": "Lamps_Indicators.md", "title": "Lamps & Indicators", "order": 16 },
+      { "file": "Landscape.md", "title": "Landscape & Environment", "order": 17 },
+      { "file": "Meters_Gauges.md", "title": "Meters & Gauges", "order": 18 },
+      { "file": "Motors_Pumps.md", "title": "Motors & Pumps", "order": 19 },
+      { "file": "Pipes_Connectors.md", "title": "Pipes & Connectors", "order": 20 },
+      { "file": "Sensors.md", "title": "Sensors & Instrumentation", "order": 21 },
+      { "file": "Valves_Vessels.md", "title": "Valves & Vessels", "order": 22 }
+    ]
+  }
+]
