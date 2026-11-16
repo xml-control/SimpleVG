@@ -20,6 +20,7 @@
 - **Inspector:** position, size, rotation, gradients, stroke, dash, markers, text styling and SCADA tag metadata.
 - **Import and export:** open and save plain SVG, import SVG into the current drawing (with an AI-output sanitizer for common namespace mistakes), and export high-resolution PNG or selection-only SVG/PNG.
 - **Built-in help:** press `F1` in the app for the full guide.
+- **Tutorials:** step-by-step guides are available at <https://arizona.xml-control.com/simplevg/>.
 
 ## Quick start
 
